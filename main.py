@@ -70,40 +70,60 @@ def get_closes_centroid_name(value):
             centroid_item = centroid
     return centroid_item
 
+
 # Algorithm
 # Calculate mean for each centroid
 
 print("----")
-for centroids_index in range(len(centroids)):
-    print("Centroid index = ", centroids_index)
-    mean = 0
-    for item in centroids[str('c') + str(centroids_index)]:
-        # print(centroids[str('c') + str(centroids_index)][item])
-        mean += float(centroids[str('c') + str(centroids_index)][item])
-    mean /= float(len(centroids[str('c') + str(centroids_index)]))
-    centroids[str('c') + str(centroids_index)]['mean'] = mean
-    print("Mean for centroid ", centroid_index, mean)
 
+
+def calculate_means_for_each_centroid():
+    for centroids_index in range(len(centroids)):
+        print("Centroid index = ", centroids_index)
+        mean = 0
+        for item in centroids[str('c') + str(centroids_index)]:
+            # print(centroids[str('c') + str(centroids_index)][item])
+            mean += float(centroids[str('c') + str(centroids_index)][item])
+        mean /= float(len(centroids[str('c') + str(centroids_index)]))
+        centroids[str('c') + str(centroids_index)]['mean'] = mean
+        print("Mean for centroid ", centroid_index, mean)
+
+
+centroids_changed = {}
+elements_changed = True
+
+
+# Iterate over each centroid
+def alocate_elements_in_rigth_centroid():
+    global elements_changed
+    elements_changed = False
+    for centroid in centroids:
+
+        # Iterate over each centroid item
+        for line in centroids[centroid]:
+            if line != 'mean':
+                print(centroid, line, centroids[centroid][line], " closest to centroid ",
+                      get_closes_centroid_name(centroids[centroid][line]))
+                correct_centroid = get_closes_centroid_name(centroids[centroid][line])
+                if not correct_centroid == centroid:
+                    print("Should change")
+                    centroids_changed[correct_centroid][line] = {}
+                    centroids_changed[correct_centroid][line] = centroids_changed[centroid][line]
+                    del centroids_changed[centroid][line]
+                    elements_changed = True
+                else:
+                    print("Should not change")
+
+
+interations = 0
+while elements_changed :
+    interations += 1
+    calculate_means_for_each_centroid()
+    centroids_changed = copy.deepcopy(centroids)
+    alocate_elements_in_rigth_centroid()
+    centroids = copy.deepcopy(centroids_changed)
+
+print("Interations = ", interations)
 print(centroids)
 
-centroids_changed = copy.deepcopy(centroids)
-# Iterate over each centroid
-for centroid in centroids:
 
-    # Iterate over each centroid item
-    for line in centroids[centroid]:
-        if line != 'mean':
-            print(centroid, line, centroids[centroid][line], " closest to centroid ",
-                  get_closes_centroid_name(centroids[centroid][line]))
-            correct_centroid = get_closes_centroid_name(centroids[centroid][line])
-            if not correct_centroid == centroid:
-                print("Should change")
-                centroids_changed[correct_centroid][line] = {}
-                centroids_changed[correct_centroid][line] = centroids_changed[centroid][line]
-                del centroids_changed[centroid][line]
-
-            else:
-                print("Should not change")
-
-print("Dictionary changed")
-print(centroids_changed)
