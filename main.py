@@ -3,6 +3,7 @@
 
 import csv
 import os
+import copy
 
 os.system('clear')
 
@@ -52,6 +53,22 @@ for database_line in range(len(database)):
         centroid_index += 1
 
 
+def get_closes_centroid_name(value):
+    centroid_item = ''
+    first_difference = -1
+
+    for centroid in centroids:
+        if first_difference == -1:
+            first_difference = abs(float(value) - centroids[centroid]['mean'])
+            centroid_item = centroid
+            continue
+
+        difference = abs(float(value) - centroids[centroid]['mean'])
+
+        if first_difference > difference:
+            first_difference = difference
+            centroid_item = centroid
+    return centroid_item
 
 # Algorithm
 # Calculate mean for each centroid
@@ -67,30 +84,26 @@ for centroids_index in range(len(centroids)):
     centroids[str('c') + str(centroids_index)]['mean'] = mean
     print("Mean for centroid ", centroid_index, mean)
 
-#print(centroids)
+print(centroids)
 
-
-def get_closes_centroid_name(value):
-    centroid_item = ''
-    first_difference = -1
-
-    for centroid in centroids:
-        if first_difference == -1:
-            first_difference = abs(float(value) - centroids[centroid]['mean'])
-            centroid_item = centroid
-            continue
-
-        difference = abs(float(value) - centroids[centroid]['mean'])
-
-        if(first_difference > difference):
-            first_difference = difference
-            centroid_item = centroid
-    return centroid_item
-
-#Itereate over each centroid
+centroids_changed = copy.deepcopy(centroids)
+# Iterate over each centroid
 for centroid in centroids:
 
-    #Iterate over each centorid item
+    # Iterate over each centroid item
     for line in centroids[centroid]:
         if line != 'mean':
-            print(centroid, line, centroids[centroid][line]," closest to centroid ", get_closes_centroid_name(centroids[centroid][line]))
+            print(centroid, line, centroids[centroid][line], " closest to centroid ",
+                  get_closes_centroid_name(centroids[centroid][line]))
+            correct_centroid = get_closes_centroid_name(centroids[centroid][line])
+            if not correct_centroid == centroid:
+                print("Should change")
+                centroids_changed[correct_centroid][line] = {}
+                centroids_changed[correct_centroid][line] = centroids_changed[centroid][line]
+                del centroids_changed[centroid][line]
+
+            else:
+                print("Should not change")
+
+print("Dictionary changed")
+print(centroids_changed)
